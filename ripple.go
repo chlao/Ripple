@@ -21,7 +21,7 @@ func main(){
 	db := NewDB()
 
 	http.Handle("/", http.FileServer(http.Dir("./public")))
-	//http.Handle("/logs", handlerLogs); 
+	http.Handle("/logs", ReadLogs(db)); 
 	
 }
 
@@ -42,24 +42,39 @@ func NewDB() *sql.DB {
 	db, err := sql.Open("sqlite3", "./ripple.db")
     checkErr(err)
     
-    /*
-    _, err = db.Exec("DROP TABLE requests)
-    checkErr(err)
-    */
-
-    _, err = db.Exec("CREATE TABLE IF NOT EXISTS requests(request_id integer primary key, timestamp text, fwd text)")
+    _, err = db.Exec("DROP TABLE IF EXISTS requests")
     checkErr(err)
 
-    // Get the request logs 
+    _, err = db.Exec("CREATE TABLE IF NOT EXISTS requests(request_id text primary key, timestamp text, fwd text)")
+    checkErr(err)
+
+    insertLogs(db)
+
+    return db
+}
+
+func insertLogs(db *sql.DB){
+	// Get the request logs 
     logs, err := processFile("logs.txt")
     checkErr(err)
 
-    // Add the request logs to the db 
-    for i, content := range logs{
-    	request := strings.Split(logs[i], " ") 
-    }
+    stmt, err := db.Prepare("INSERT INTO requests (request_id, timestamp, fwd) VALUES(?, ?, ?)")
+	checkErr(err)	
 
-    return db
+    defer stmt.Close()
+
+    // Add the request logs to the db 
+    for _, content := range logs{
+    	request := strings.Split(content, " ") 
+    	//log.Println(request[0])
+
+    	timestamp := request[0] 
+    	request_id := request[5]
+    	fwd := request[6]
+
+    	_, err = stmt.Exec(request_id, timestamp, fwd)
+		checkErr(err) 
+    }
 }
 
 func processFile(fileName string) ([]string, error) {
@@ -79,6 +94,7 @@ func processFile(fileName string) ([]string, error) {
 
 func ReadLogs(db *sql.DB) http.Handler{
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
+		// Return logs to the client side 
+		
 	})
 }
