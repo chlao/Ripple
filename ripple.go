@@ -9,7 +9,7 @@ import(
 	"net/http"
 	"database/sql"
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/elgs/gosqljson"
+	//"github.com/elgs/gosqljson"
 	"encoding/json"
 )
 
@@ -48,13 +48,13 @@ func NewDB() *sql.DB {
 	db, err := sql.Open("sqlite3", "./ripple.db")
     checkErr(err)
     
-    _, err = db.Exec("DROP TABLE IF EXISTS requests")
-    checkErr(err)
+    //_, err = db.Exec("DROP TABLE IF EXISTS requests")
+    //checkErr(err)
 
     _, err = db.Exec("CREATE TABLE IF NOT EXISTS requests(request_id text primary key, timestamp text, fwd text)")
     checkErr(err)
 
-    insertLogs(db)
+    //insertLogs(db)
 
     return db
 }
@@ -64,7 +64,7 @@ func insertLogs(db *sql.DB){
     logs, err := processFile("logs.txt")
     checkErr(err)
 
-    stmt, err := db.Prepare("INSERT INTO requests (request_id, timestamp, fwd) VALUES(?, ?, ?)")
+    stmt, err := db.Prepare("INSERT OR IGNORE INTO requests (request_id, timestamp, fwd) VALUES(?, ?, ?)")
 	checkErr(err)	
 
     defer stmt.Close()
@@ -105,23 +105,36 @@ func processFile(fileName string) ([]string, error) {
 	return lines, scanner.Err()
 }
 
+type IPAddresses struct{
+	Fwd []string
+}
+
 func GetIP(db *sql.DB) http.Handler{
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")	
 
-		data, err := gosqljson.QueryDbToMap(db, "", "SELECT DISTINCT fwd FROM requests")
-		checkErr(err)
-
-		json.NewEncoder(w).Encode(data)	
-
-		// Return a list of IP addresses to client side 
-		//rows, err := db.Query("SELECT DISTINCT fwd FROM requests")
+		//data, err := gosqljson.QueryDbToMap(db, "", "SELECT DISTINCT fwd FROM requests")
 		//checkErr(err)
 
+		ip := make([]string, 0)
+		var ipAddress string
 
+		// Return a list of IP addresses to client side 
+		rows, err := db.Query("SELECT DISTINCT fwd FROM requests")
+		checkErr(err)
+
+		defer rows.Close()
+
+		for rows.Next(){
+			rows.Scan(&ipAddress)
+			ip = append(ip, ipAddress)
+		}
+
+		data := IPAddresses{Fwd: ip}
+		json.NewEncoder(w).Encode(data)	
 	})
 }
-
+ 
 func ReadLogs(db *sql.DB) http.Handler{
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Return logs to the client side 
