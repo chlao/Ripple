@@ -75,7 +75,7 @@ func insertLogs(db *sql.DB){
 
     // Add the request logs to the db 
     for _, content := range logs{
-    	timestamp := re_timestamp.FindString(content) //content[:27]
+    	timestamp := re_timestamp.FindString(content) 
     	request_id := re_requestid.FindString(content)[11:]
     	fwd := re_fwd.FindString(content)
 
