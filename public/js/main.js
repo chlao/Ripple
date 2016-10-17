@@ -17,54 +17,61 @@ function debounce(func, wait, immediate) {
 	};
 };
 
-var loadSuggestionsDebounce = debounce(function(suggestions){
-	loadSuggestions(suggestions); 
-}, 300); 
-
-function onSearch(inputValue, ipAddresses, debounceFunc){
+var loadSuggestions = function (inputValue, ipAddresses){
 	// Look for the value 
 	var results = search(inputValue, ipAddresses);
 	console.log(results);
 
-	/*
-	if (debounceFunc){
-		callback = loadSuggestionsDebounce; 
+	var newIPSuggetions = $('<ul>').addClass('search__ipSuggestions'); 
+
+	var i; 
+
+	for (i = 0; i < results.length; i++){
+		newIPSuggetions.append('<li class="ipSuggestions__item">' + results[i] + '</li>'); 
 	}
 
-	if (c.length == 0 || $.trim(c) == ''){
-		$('#search__suggestions').css('display', 'none'); 
+	$('.search__ipSuggestions').replaceWith(newIPSuggetions); 
+	addIPSuggestionsListener();
+}
+
+function onSearch(inputValue, ipAddresses, debounceFunc){
+	if (inputValue.length == 0 || $.trim(inputValue) == ''){
+		//$('#search__suggestions').css('display', 'none'); 
 	} else {
-		$.ajax({
-			url: '',  
-			success: callback
-		}); 
+		if (debounceFunc){
+			debounce(function(inputValue, ipAddresses){
+				loadSuggestions(inputValue, ipAddresses); 
+			}, 300); 
+		} else{
+			loadSuggestions(inputValue, ipAddresses); 
+		}
 	}
-	*/
 }
 
 function search(inputValue, ipAddresses){
-	var sortedIPAddresses = mergeSort(ipAddresses);
-	console.log(sortedIPAddresses);
+	var low = 0; 
+	var high = ipAddresses.length - 1; 
+	var mid; 
 
 	var inputLen = inputValue.length;
 
 	var currIndex; 
-	var currWord; 
+	var currWord;
 
-	var low = 0; 
-	var high = sortedIPAddresses.length - 1; 
-	var mid; 
+	var comparisonValue; 
 
-	var results = [];
+	var results = []; 
 
-	while (low < high){
-		mid = Math.floor((low + high)/2);
-		currWord = sortedIPAddresses[mid];
+	while (low <= high){
+		mid = Math.floor((low + high)/2); 
+		currWord = ipAddresses[mid];
 		prefix = currWord.substring(0, inputLen);
 
-		if (inputValue < prefix){
+		comparisonValue = compareIPs(inputValue, prefix);
+
+		if (comparisonValue === -1){
 			high = mid - 1; 
-		} else if (inputValue > prefix){
+		} else if (comparisonValue === 1){
 			low = mid + 1; 
 		} else{
 			currIndex = mid; 
@@ -74,7 +81,7 @@ function search(inputValue, ipAddresses){
 				currIndex--; 
 				
 				if (currIndex >= 0){
-					currWord = sortedIPAddresses[currIndex]; 
+					currWord = ipAddresses[currIndex]; 
 					prefix = currWord.substring(0, inputLen); 
 				} else{
 					break;
@@ -83,7 +90,7 @@ function search(inputValue, ipAddresses){
 
 			// Reset values 
 			currIndex++;
-			currWord = sortedIPAddresses[currIndex]; 
+			currWord = ipAddresses[currIndex]; 
 			prefix = currWord.substring(0, inputLen); 
 
 			// Add all words w/ prefix to results 
@@ -91,13 +98,14 @@ function search(inputValue, ipAddresses){
 				results.push(currWord); 
 				currIndex++;
 				
-				if (currIndex < sortedIPAddresses.length){
-					currWord = sortedIPAddresses[currIndex]; 
+				if (currIndex < ipAddresses.length){
+					currWord = ipAddresses[currIndex]; 
 					prefix = currWord.substring(0, inputLen); 
 				} else{
 					break;
 				}
 			}
+
 			break;
 		}
 	}
@@ -134,7 +142,13 @@ function compareIPs(ipAddressA, ipAddressB){
   		i++;
 	}
 
-	return parseInt(ipAddressLeft[i]) < parseInt(ipAddressRight[i]);
+	if (parseInt(ipAddressLeft[i]) < parseInt(ipAddressRight[i])){
+		return -1; 
+	} else if (parseInt(ipAddressLeft[i]) > parseInt(ipAddressRight[i])){
+		return 1; 
+	} else{
+		return 0; 
+	}
 }
 
 function merge(leftArr, rightArr){
@@ -142,7 +156,7 @@ function merge(leftArr, rightArr){
   var elem; 
   
   while (leftArr.length && rightArr.length){ 
-	if(compareIPs(leftArr[0], rightArr[0])){
+	if(compareIPs(leftArr[0], rightArr[0]) === -1){
       elem = leftArr.shift(); 
       mergedArr.push(elem); 
     } else {
@@ -161,22 +175,30 @@ $(document).ready(function(){
 
 		var i; 
 
+		var sortedIPAddresses = mergeSort(ipAddresses);
+
 		for (i = 0; i < numIPAddresses; i++){
-			$('.search__ipSuggestions').append('<li class="ipSuggestions__item">' + ipAddresses[i] + '</li>'); 
+			$('.search__ipSuggestions').append('<li class="ipSuggestions__item">' + sortedIPAddresses[i] + '</li>'); 
 		}
 
-		$('.search__ipSuggestions').on('click', '.ipSuggestions__item', function(){
-			console.log($(this).text());
-			// Search 
-			getLogs($(this).text()); 
-		});
+		addIPSuggestionsListener();
 
-		initSearch(ipAddresses); 
+		initSearch(sortedIPAddresses); 
 	});
 });
 
+function addIPSuggestionsListener(){
+	$('.search__ipSuggestions').on('click', '.ipSuggestions__item', function(){
+			var ipAddress = $(this).text();
+			console.log(ipAddress);
+			$('.search__ipAddress').val(ipAddress);
+			// Search 
+			getLogs(ipAddress); 
+		});
+}
+
 function initSearch(ipAddresses){
-	var ipSearchBox = $('.search__ipAddress')
+	var ipSearchBox = $('.search__ipAddress');
 	ipSearchBox.focus(); 
 
 	var input = document.createElement('input');
@@ -193,7 +215,8 @@ function initSearch(ipAddresses){
 }
 
 function getLogs(ipAddress){
+	console.log(ipAddress)
 	$.get('/logs', ipAddress, function(data){
-		
+		console.log(data);
 	}, 'json'); 
 }
