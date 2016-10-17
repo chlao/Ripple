@@ -127,7 +127,7 @@ func GetIP(db *sql.DB) http.Handler{
 		var ipAddress string
 
 		// Return a list of IP addresses to client side 
-		rows, err := db.Query("SELECT DISTINCT fwd FROM requests")
+		rows, err := db.Query("SELECT DISTINCT fwd FROM requests ORDER BY fwd ASC")
 		checkErr(err)
 
 		defer rows.Close()

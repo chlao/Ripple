@@ -55,10 +55,8 @@ function search(inputValue, ipAddresses){
 
 	var inputLen = inputValue.length;
 
-	var currIndex; 
 	var currWord;
-
-	var comparisonValue; 
+	var prefix; 
 
 	var results = []; 
 
@@ -67,21 +65,17 @@ function search(inputValue, ipAddresses){
 		currWord = ipAddresses[mid];
 		prefix = currWord.substring(0, inputLen);
 
-		comparisonValue = compareIPs(inputValue, prefix);
-
-		if (comparisonValue === -1){
+		if (inputValue < prefix){
 			high = mid - 1; 
-		} else if (comparisonValue === 1){
+		} else if (inputValue > prefix){
 			low = mid + 1; 
 		} else{
-			currIndex = mid; 
-
 			// Backtrack to find all ip address starting w/ current input value 
 			while (prefix === inputValue){
-				currIndex--; 
+				mid--; 
 				
-				if (currIndex >= 0){
-					currWord = ipAddresses[currIndex]; 
+				if (mid >= 0){
+					currWord = ipAddresses[mid]; 
 					prefix = currWord.substring(0, inputLen); 
 				} else{
 					break;
@@ -89,17 +83,17 @@ function search(inputValue, ipAddresses){
 			}
 
 			// Reset values 
-			currIndex++;
-			currWord = ipAddresses[currIndex]; 
+			mid++;
+			currWord = ipAddresses[mid]; 
 			prefix = currWord.substring(0, inputLen); 
 
 			// Add all words w/ prefix to results 
 			while (prefix === inputValue){
 				results.push(currWord); 
-				currIndex++;
+				mid++;
 				
-				if (currIndex < ipAddresses.length){
-					currWord = ipAddresses[currIndex]; 
+				if (mid < ipAddresses.length){
+					currWord = ipAddresses[mid]; 
 					prefix = currWord.substring(0, inputLen); 
 				} else{
 					break;
@@ -113,61 +107,6 @@ function search(inputValue, ipAddresses){
 	return results;
 }
 
-function mergeSort(arr){
-	var low, mid, high;
-	var left, right;
-
-	if (arr.length <= 1){
-		return arr; 
-	}
-
-	low = 0; 
-	high = arr.length; 
-	mid = Math.floor((low+high)/2); 
-
-	if (low < high){
-		left = mergeSort(arr.slice(0, mid)); 
-		right = mergeSort(arr.slice(mid, high)); 
-		return merge(left, right); 
-	}
-}
-
-function compareIPs(ipAddressA, ipAddressB){
-	var ipAddressLeft = ipAddressA.split('.');
-  	var ipAddressRight = ipAddressB.split('.'); 
-
-  	var i = 0;  
-
-  	while (parseInt(ipAddressLeft[i]) == parseInt(ipAddressRight[i])){
-  		i++;
-	}
-
-	if (parseInt(ipAddressLeft[i]) < parseInt(ipAddressRight[i])){
-		return -1; 
-	} else if (parseInt(ipAddressLeft[i]) > parseInt(ipAddressRight[i])){
-		return 1; 
-	} else{
-		return 0; 
-	}
-}
-
-function merge(leftArr, rightArr){
-  var mergedArr = []; 
-  var elem; 
-  
-  while (leftArr.length && rightArr.length){ 
-	if(compareIPs(leftArr[0], rightArr[0]) === -1){
-      elem = leftArr.shift(); 
-      mergedArr.push(elem); 
-    } else {
-      elem = rightArr.shift(); 
-      mergedArr.push(elem); 
-    }
-  }
-
-  return mergedArr.concat(leftArr, rightArr); 
-}
-
 $(document).ready(function(){
 	$.get('/ip', function(data){
 		var ipAddresses = data.Fwd; 
@@ -175,24 +114,21 @@ $(document).ready(function(){
 
 		var i; 
 
-		var sortedIPAddresses = mergeSort(ipAddresses);
-
 		for (i = 0; i < numIPAddresses; i++){
-			$('.search__ipSuggestions').append('<li class="ipSuggestions__item">' + sortedIPAddresses[i] + '</li>'); 
+			$('.search__ipSuggestions').append('<li class="ipSuggestions__item">' + ipAddresses[i] + '</li>'); 
 		}
 
 		addIPSuggestionsListener();
 
-		initSearch(sortedIPAddresses); 
+		initSearch(ipPAddresses); 
 	});
 });
 
 function addIPSuggestionsListener(){
 	$('.search__ipSuggestions').on('click', '.ipSuggestions__item', function(){
 			var ipAddress = $(this).text();
-			console.log(ipAddress);
 			$('.search__ipAddress').val(ipAddress);
-			// Search 
+
 			getLogs(ipAddress); 
 		});
 }
