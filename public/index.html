@@ -6,15 +6,24 @@
         <title>Ripple - Logs</title>
         <meta name="description" content="Ripple - Logs Dashboard">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link href="css/style.css" rel="stylesheet">
     </head>
     <body>
-        <label for="search__ipAddress"> Search for an IP Address </label>
-        <input type="search" id="search__ipAddress" autocomplete="off" incremental="on">
-        <ul class="ipSuggestions"></ul>
+        <div class="content__sidebar">
+            <h1> Search for an IP Address </h1>
+            <input class="search__ipAddress" type="search" autocomplete="off" incremental="on">
+            <ul class="search__ipSuggestions"></ul>
+        </div>
 
+        <div class="content__chart">
+            <h2> IP Address: </h2> 
+            <div class="chart">
+            </div> 
+        </div> 
         <!--<input type="text" name="ipAddress" list="ipAddresses" class="">
         <datalist id="ipAddresses"></datalist> -->
-        
+
     	<script src="js/vendor/jquery-1.9.1.min.js"></script> 
         <script src="js/main.js"></script>
     </body>

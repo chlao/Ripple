@@ -162,15 +162,21 @@ $(document).ready(function(){
 		var i; 
 
 		for (i = 0; i < numIPAddresses; i++){
-			$('.ipSuggestions').append('<li>' + ipAddresses[i] + '</li>'); 
+			$('.search__ipSuggestions').append('<li class="ipSuggestions__item">' + ipAddresses[i] + '</li>'); 
 		}
+
+		$('.search__ipSuggestions').on('click', '.ipSuggestions__item', function(){
+			console.log($(this).text());
+			// Search 
+			getLogs($(this).text()); 
+		});
 
 		initSearch(ipAddresses); 
 	});
 });
 
 function initSearch(ipAddresses){
-	var ipSearchBox = $('#search__ipAddress')
+	var ipSearchBox = $('.search__ipAddress')
 	ipSearchBox.focus(); 
 
 	var input = document.createElement('input');
@@ -186,9 +192,8 @@ function initSearch(ipAddresses){
 	}
 }
 
-/*
-function getLogs(){
-	$.get('/logs', function(data){
+function getLogs(ipAddress){
+	$.get('/logs', ipAddress, function(data){
 		
-	}); 
-}*/
+	}, 'json'); 
+}
