@@ -216,7 +216,7 @@ function initSearch(ipAddresses){
 
 function getLogs(ipAddress){
 	console.log(ipAddress)
-	$.get('/logs', ipAddress, function(data){
+	$.get('/logs/' + ipAddress, function(data){
 		console.log(data);
 	}, 'json'); 
 }

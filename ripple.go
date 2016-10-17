@@ -4,13 +4,14 @@ import(
 	"bufio"
 	"os"
 	"log"
-	//"strings"
+	"strings"
 	"regexp"
 	"net/http"
 	"database/sql"
 	_ "github.com/mattn/go-sqlite3"
 	//"github.com/elgs/gosqljson"
 	"encoding/json"
+	"github.com/gorilla/mux"
 )
 
 func main(){
@@ -22,13 +23,23 @@ func main(){
 
 	db := NewDB()
 
+	r := mux.NewRouter()
+
+	r.Handle("/ip", GetIP(db)).Methods(http.MethodGet)
+	r.Handle("/logs/{id}", ReadLogs(db)).Methods(http.MethodGet)
+
+	/*
 	http.Handle("/", http.FileServer(http.Dir("./public")))
 	http.Handle("/ip", GetIP(db)); 
 	http.Handle("/logs", ReadLogs(db)); 
+	*/
+
+	// This will serve files under http://localhost:3000/<filename> - Serves CSS, JS files 
+	r.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("./public"))))
 	
 	log.Println("Listening...")
 
-	http.ListenAndServe(":" + port, nil)
+	http.ListenAndServe(":" + port, r)
 }
 
 func checkErr(err error){
@@ -81,10 +92,6 @@ func insertLogs(db *sql.DB){
 
     	fwd = fwd[5:len(fwd)]
 
-    	log.Println(timestamp)
-    	log.Println(request_id)
-    	log.Println(fwd)
-
     	_, err = stmt.Exec(request_id, timestamp, fwd)
 		checkErr(err) 
     }
@@ -134,10 +141,34 @@ func GetIP(db *sql.DB) http.Handler{
 		json.NewEncoder(w).Encode(data)	
 	})
 }
+
+type Timestamps struct{
+	Timestamp [] string
+}
  
 func ReadLogs(db *sql.DB) http.Handler{
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Return logs to the client side 
+		err := r.ParseForm()
+		checkErr(err)
 
+		split := strings.Split(r.URL.String(), "/")
+		ip := split[len(split) - 1]
+
+		log.Println(ip)
+
+		rows, err := db.Query("SELECT timestamp FROM requests WHERE fwd=\"" + ip + "\"")
+		checkErr(err)
+
+		timestamps := make([]string, 0)
+		var timestamp string;
+
+		for rows.Next(){
+			rows.Scan(&timestamp)
+			timestamps = append(timestamps, timestamp)
+		}
+
+		data := Timestamps{timestamps}
+		json.NewEncoder(w).Encode(data)	
 	})
 }
