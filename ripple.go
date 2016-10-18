@@ -63,7 +63,7 @@ func insertLogs(db *sql.DB){
     logs, err := processFile("logs.txt")
     checkErr(err)
 
-    stmt, err := db.Prepare("INSERT INTO requests (request_id, timestamp, fwd) VALUES($1,$2,$3)")
+    stmt, err := db.Prepare("INSERT INTO requests (request_id, timestamp, fwd) VALUES($1,$2,$3) ON CONFLICT DO NOTHING")
 	checkErr(err)	
 
     defer stmt.Close()
