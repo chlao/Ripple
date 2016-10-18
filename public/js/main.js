@@ -1,3 +1,10 @@
+var ripple = {
+	chart: null, 
+	ipAddresses: [], 
+	ipAddressesHTML: null
+}; 
+
+
 // Returns a function, that, as long as it continues to be invoked, will not
 // be triggered. The function will be called after it stops being called for
 // N milliseconds. If `immediate` is passed, trigger the function on the
@@ -17,9 +24,9 @@ function debounce(func, wait, immediate) {
 	};
 };
 
-var loadSuggestions = function (inputValue, ipAddresses){
+var loadSuggestions = function (inputValue){
 	// Look for the value 
-	var results = search(inputValue, ipAddresses);
+	var results = search(inputValue, ripple.ipAddresses);
 	console.log(results);
 
 	var newIPSuggetions = $('<ul>').addClass('search__ipSuggestions'); 
@@ -34,16 +41,18 @@ var loadSuggestions = function (inputValue, ipAddresses){
 	addIPSuggestionsListener();
 }
 
-function onSearch(inputValue, ipAddresses, debounceFunc){
+function onSearch(inputValue, debounceFunc){
+	console.log('onSearch'); 
+	$('search__ipSuggestions').show();
 	if (inputValue.length == 0 || $.trim(inputValue) == ''){
-		//$('#search__suggestions').css('display', 'none'); 
+		$('.search__ipSuggestions').replaceWith(ripple.ipAddressesHTML); 
 	} else {
 		if (debounceFunc){
-			debounce(function(inputValue, ipAddresses){
-				loadSuggestions(inputValue, ipAddresses); 
+			debounce(function(inputValue){
+				loadSuggestions(inputValue); 
 			}, 300); 
 		} else{
-			loadSuggestions(inputValue, ipAddresses); 
+			loadSuggestions(inputValue); 
 		}
 	}
 }
@@ -109,18 +118,20 @@ function search(inputValue, ipAddresses){
 
 $(document).ready(function(){
 	$.get('/ip', function(data){
-		var ipAddresses = data.Fwd; 
-		var numIPAddresses = ipAddresses.length; 
+		ripple.ipAddresses = data.Fwd; 
+		var numIPAddresses = ripple.ipAddresses.length; 
 
 		var i; 
 
 		for (i = 0; i < numIPAddresses; i++){
-			$('.search__ipSuggestions').append('<li class="ipSuggestions__item">' + ipAddresses[i] + '</li>'); 
+			$('.search__ipSuggestions').append('<li class="ipSuggestions__item">' + ripple.ipAddresses[i] + '</li>'); 
 		}
+
+		ripple.ipAddressesHTML = $('search__ipSuggestions'); 
 
 		addIPSuggestionsListener();
 
-		initSearch(ipPAddresses); 
+		initSearch(); 
 	});
 });
 
@@ -129,11 +140,13 @@ function addIPSuggestionsListener(){
 			var ipAddress = $(this).text();
 			$('.search__ipAddress').val(ipAddress);
 
+			$('.search__ipSuggestions').hide();
+
 			getLogs(ipAddress); 
 		});
 }
 
-function initSearch(ipAddresses){
+function initSearch(){
 	var ipSearchBox = $('.search__ipAddress');
 	ipSearchBox.focus(); 
 
@@ -141,18 +154,80 @@ function initSearch(ipAddresses){
 
 	if (typeof input.incremental != 'undefined') {
 	    ipSearchBox.on('search', function(){
-			onSearch($(this).val(), ipAddresses);
+			onSearch($(this).val());
 		}); 
 	} else {
 		ipSearchBox.on('keyup', function(){
-			onSearch($(this).val(), ipAddresses, true); 
+			onSearch($(this).val(), true); 
 		}); 
 	}
 }
 
 function getLogs(ipAddress){
-	console.log(ipAddress)
+	$('.ipAddress').text('IP Address: ' + ipAddress); 
 	$.get('/logs/' + ipAddress, function(data){
 		console.log(data);
+
+		createChart(data.Timestamp); 
 	}, 'json'); 
+}
+
+function createChart(requestTimes){
+	var ctx = $('#chart__requestsForIP');
+
+	var structuredData = {};
+	var labels = [];
+	var data = []; 
+	var time;
+
+	var i; 
+
+	for (i = 0; i < requestTimes.length; i++){
+		console.log(requestTimes[i]) 
+		// yyyy-mm-dd hh:mm:ss
+		time = requestTimes[i].substring(0, 19); 
+		if (structuredData[time] !== undefined){
+			structuredData[time]++; 
+		} else{
+			structuredData[time] = 1; 
+			labels.push(time); 
+		}
+	}
+
+	for (i = 0; i < labels.length; i++){
+		data.push(structuredData[labels[i]]); 
+	}
+
+	var barData = {
+		labels: labels,
+	    datasets: [
+	        {
+	        	label: 'Requests Per Second', 
+	            backgroundColor: 'rgba(255, 99, 132, 0.9)',
+	            borderColor: 'rgba(0, 0, 0, 1)',
+	            borderWidth: 1,
+	            data: data,
+	        }
+	    ]
+	};
+
+	var barChart = new Chart(ctx, {
+	    type: 'bar',
+	    data: barData,
+	    options: {
+	    	scales: {
+	            yAxes: [{
+	                ticks: {
+	                    min: 0,
+	                    stepSize: 1
+	                }
+	            }]
+	        }
+	    }
+	});
+
+	if (ripple.chart !== null){
+		ripple.chart.destroy();
+	}
+	ripple.chart = barChart; 
 }
