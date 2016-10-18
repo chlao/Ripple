@@ -8,7 +8,6 @@ var ripple = {
 // N milliseconds. If `immediate` is passed, trigger the function on the
 // leading edge, instead of the trailing.
 function debounce(func, wait, immediate) {
-	console.log('debouncefunc')
 	var timeout;
 	return function() {
 		var context = this, args = arguments;
@@ -127,6 +126,8 @@ $(document).ready(function(){
 
 		var i; 
 
+		console.log(data)
+
 		for (i = 0; i < numIPAddresses; i++){
 			$('.search__ipSuggestions').append('<li class="ipSuggestions__item">' + ripple.ipAddresses[i] + '</li>'); 
 		}
@@ -160,8 +161,6 @@ function initSearch(){
 function getLogs(ipAddress){
 	$('.ipAddress').text('IP Address: ' + ipAddress); 
 	$.get('/logs/' + ipAddress, function(data){
-		console.log(data);
-
 		createChart(data.Timestamp); 
 	}, 'json'); 
 }
@@ -177,7 +176,6 @@ function createChart(requestTimes){
 	var i; 
 
 	for (i = 0; i < requestTimes.length; i++){
-		console.log(requestTimes[i]) 
 		// yyyy-mm-dd hh:mm:ss
 		time = requestTimes[i].substring(0, 19); 
 		if (structuredData[time] !== undefined){

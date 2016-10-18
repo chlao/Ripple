@@ -9,7 +9,6 @@ import(
 	"net/http"
 	"database/sql"
 	_ "github.com/mattn/go-sqlite3"
-	//"github.com/elgs/gosqljson"
 	"encoding/json"
 	"github.com/gorilla/mux"
 )
@@ -28,13 +27,6 @@ func main(){
 	r.Handle("/ip", GetIP(db)).Methods(http.MethodGet)
 	r.Handle("/logs/{id}", ReadLogs(db)).Methods(http.MethodGet)
 
-	/*
-	http.Handle("/", http.FileServer(http.Dir("./public")))
-	http.Handle("/ip", GetIP(db)); 
-	http.Handle("/logs", ReadLogs(db)); 
-	*/
-
-	// This will serve files under http://localhost:3000/<filename> - Serves CSS, JS files 
 	r.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("./public"))))
 	
 	log.Println("Listening...")
@@ -44,12 +36,6 @@ func main(){
 
 func checkErr(err error){
 	if err != nil {
-		/* Panic is a built-in function that stops the ordinary flow of control and begins panicking. 
-		When the function F calls panic, execution of F stops, any deferred functions in F are executed normally, 
-		and then F returns to its caller. To the caller, F then behaves like a call to panic. 
-		The process continues up the stack until all functions in the current goroutine have returned, 
-		at which point the program crashes.
-		*/
 		log.Fatal(err)
         panic(err)
     }
@@ -59,13 +45,13 @@ func NewDB() *sql.DB {
 	db, err := sql.Open("sqlite3", "./ripple.db")
     checkErr(err)
     
-    //_, err = db.Exec("DROP TABLE IF EXISTS requests")
-    //checkErr(err)
+    _, err = db.Exec("DROP TABLE IF EXISTS requests")
+    checkErr(err)
 
     _, err = db.Exec("CREATE TABLE IF NOT EXISTS requests(request_id text primary key, timestamp text, fwd text)")
     checkErr(err)
 
-    //insertLogs(db)
+    insertLogs(db)
 
     return db
 }
@@ -120,9 +106,6 @@ func GetIP(db *sql.DB) http.Handler{
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")	
 
-		//data, err := gosqljson.QueryDbToMap(db, "", "SELECT DISTINCT fwd FROM requests")
-		//checkErr(err)
-
 		ip := make([]string, 0)
 		var ipAddress string
 
@@ -154,8 +137,6 @@ func ReadLogs(db *sql.DB) http.Handler{
 
 		split := strings.Split(r.URL.String(), "/")
 		ip := split[len(split) - 1]
-
-		log.Println(ip)
 
 		rows, err := db.Query("SELECT timestamp FROM requests WHERE fwd=\"" + ip + "\"")
 		checkErr(err)
