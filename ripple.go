@@ -47,13 +47,13 @@ func NewDB() *sql.DB {
 	db, err := sql.Open("sqlite3", "./ripple.db")
     checkErr(err)
     
-    _, err = db.Exec("DROP TABLE IF EXISTS requests")
-    checkErr(err)
+    //_, err = db.Exec("DROP TABLE IF EXISTS requests")
+    //checkErr(err)
 
     _, err = db.Exec("CREATE TABLE IF NOT EXISTS requests(request_id text primary key, timestamp text, fwd text)")
     checkErr(err)
 
-    insertLogs(db)
+    //insertLogs(db)
 
     return db
 }
