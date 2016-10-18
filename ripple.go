@@ -8,7 +8,8 @@ import(
 	"regexp"
 	"net/http"
 	"database/sql"
-	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/lib/pq"
+	//_ "github.com/mattn/go-sqlite3"
 	"encoding/json"
 	"github.com/gorilla/mux"
 )
@@ -42,16 +43,17 @@ func checkErr(err error){
 }
 
 func NewDB() *sql.DB {
-	db, err := sql.Open("sqlite3", "./ripple.db")
+	db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
+	//sql.Open("sqlite3", "./ripple.db")
     checkErr(err)
     
-    //_, err = db.Exec("DROP TABLE IF EXISTS requests")
-    //checkErr(err)
+    _, err = db.Exec("DROP TABLE IF EXISTS requests")
+    checkErr(err)
 
     _, err = db.Exec("CREATE TABLE IF NOT EXISTS requests(request_id text primary key, timestamp text, fwd text)")
     checkErr(err)
 
-    //insertLogs(db)
+    insertLogs(db)
 
     return db
 }
