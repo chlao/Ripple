@@ -1,0 +1,17 @@
+{
+	"ImportPath": "github.com/chlao/ripple",
+	"GoVersion": "go1.7",
+	"GodepVersion": "v74",
+	"Deps": [
+		{
+			"ImportPath": "github.com/gorilla/mux",
+			"Comment": "v1.1-25-g0a192a1",
+			"Rev": "0a192a193177452756c362c20087ddafcf6829c4"
+		},
+		{
+			"ImportPath": "github.com/mattn/go-sqlite3",
+			"Comment": "v1.1.0-92-g3fb7a0e",
+			"Rev": "3fb7a0e792edd47bf0cf1e919dfc14e2be412e15"
+		}
+	]
+}
