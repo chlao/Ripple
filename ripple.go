@@ -50,8 +50,8 @@ func NewDB() *sql.DB {
     //_, err = db.Exec("DROP TABLE IF EXISTS requests")
     //checkErr(err)
 
-    _, err = db.Exec("CREATE TABLE IF NOT EXISTS requests(request_id text primary key, timestamp text, fwd text)")
-    checkErr(err)
+    //_, err = db.Exec("CREATE TABLE IF NOT EXISTS requests(request_id text primary key, timestamp text, fwd text)")
+    //checkErr(err)
 
     //insertLogs(db)
 
