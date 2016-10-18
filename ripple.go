@@ -80,7 +80,7 @@ func insertLogs(db *sql.DB){
 
     	fwd = fwd[5:len(fwd)]
 
-    	_, err = stmt.Exec(request_id, timestamp, fwd, request_id)
+    	_, err = stmt.Exec(request_id, timestamp, fwd)
 		checkErr(err) 
     }
 }
