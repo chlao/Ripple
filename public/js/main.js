@@ -1,15 +1,14 @@
 var ripple = {
 	chart: null, 
-	ipAddresses: [], 
-	ipAddressesHTML: null
+	ipAddresses: []
 }; 
-
 
 // Returns a function, that, as long as it continues to be invoked, will not
 // be triggered. The function will be called after it stops being called for
 // N milliseconds. If `immediate` is passed, trigger the function on the
 // leading edge, instead of the trailing.
 function debounce(func, wait, immediate) {
+	console.log('debouncefunc')
 	var timeout;
 	return function() {
 		var context = this, args = arguments;
@@ -24,36 +23,41 @@ function debounce(func, wait, immediate) {
 	};
 };
 
-var loadSuggestions = function (inputValue){
+function loadSuggestions(inputValue){
 	// Look for the value 
 	var results = search(inputValue, ripple.ipAddresses);
-	console.log(results);
 
-	var newIPSuggetions = $('<ul>').addClass('search__ipSuggestions'); 
+	var newIPSuggestions = $('<ul>').addClass('search__ipSuggestions'); 
 
 	var i; 
 
 	for (i = 0; i < results.length; i++){
-		newIPSuggetions.append('<li class="ipSuggestions__item">' + results[i] + '</li>'); 
+		newIPSuggestions.append('<li class="ipSuggestions__item">' + results[i] + '</li>'); 
 	}
 
-	$('.search__ipSuggestions').replaceWith(newIPSuggetions); 
+	$('.search__ipSuggestions').replaceWith(newIPSuggestions); 
 	addIPSuggestionsListener();
 }
 
-function onSearch(inputValue, debounceFunc){
-	console.log('onSearch'); 
-	$('search__ipSuggestions').show();
+function onSearch(inputValue){
+	var debounceFunc; 
+	var newIPSuggestions; 
+
+	var i; 
+
+	$('.search__ipSuggestions').show();
 	if (inputValue.length == 0 || $.trim(inputValue) == ''){
-		$('.search__ipSuggestions').replaceWith(ripple.ipAddressesHTML); 
-	} else {
-		if (debounceFunc){
-			debounce(function(inputValue){
-				loadSuggestions(inputValue); 
-			}, 300); 
-		} else{
-			loadSuggestions(inputValue); 
+		newIPSuggestions = $('<ul>').addClass('search__ipSuggestions'); 
+
+		for (i = 0; i < ripple.ipAddresses.length; i++){
+			newIPSuggestions.append('<li class="ipSuggestions__item">' + ripple.ipAddresses[i] + '</li>'); 
 		}
+
+		$('.search__ipSuggestions').replaceWith(newIPSuggestions); 
+		addIPSuggestionsListener();
+	} else {
+		debounceFunc = debounce(loadSuggestions, 400);
+		debounceFunc(inputValue); 
 	}
 }
 
@@ -127,8 +131,6 @@ $(document).ready(function(){
 			$('.search__ipSuggestions').append('<li class="ipSuggestions__item">' + ripple.ipAddresses[i] + '</li>'); 
 		}
 
-		ripple.ipAddressesHTML = $('search__ipSuggestions'); 
-
 		addIPSuggestionsListener();
 
 		initSearch(); 
@@ -137,30 +139,22 @@ $(document).ready(function(){
 
 function addIPSuggestionsListener(){
 	$('.search__ipSuggestions').on('click', '.ipSuggestions__item', function(){
-			var ipAddress = $(this).text();
-			$('.search__ipAddress').val(ipAddress);
+		var ipAddress = $(this).text();
+		$('.search__ipAddress').val(ipAddress);
 
-			$('.search__ipSuggestions').hide();
+		$('.search__ipSuggestions').empty().append('<li class="ipSuggestions__item">' + ipAddress + '</li>'); 
 
-			getLogs(ipAddress); 
-		});
+		getLogs(ipAddress); 
+	});
 }
 
 function initSearch(){
 	var ipSearchBox = $('.search__ipAddress');
 	ipSearchBox.focus(); 
 
-	var input = document.createElement('input');
-
-	if (typeof input.incremental != 'undefined') {
-	    ipSearchBox.on('search', function(){
-			onSearch($(this).val());
-		}); 
-	} else {
-		ipSearchBox.on('keyup', function(){
-			onSearch($(this).val(), true); 
-		}); 
-	}
+	ipSearchBox.on('keyup', function(e){
+		onSearch($(this).val()); 
+	}); 
 }
 
 function getLogs(ipAddress){
@@ -203,9 +197,7 @@ function createChart(requestTimes){
 	    datasets: [
 	        {
 	        	label: 'Requests Per Second', 
-	            backgroundColor: 'rgba(255, 99, 132, 0.9)',
-	            borderColor: 'rgba(0, 0, 0, 1)',
-	            borderWidth: 1,
+	            backgroundColor: '#F78B2D',
 	            data: data,
 	        }
 	    ]
