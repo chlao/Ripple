@@ -8,8 +8,8 @@ import(
 	"regexp"
 	"net/http"
 	"database/sql"
-	_ "github.com/lib/pq"
-	//_ "github.com/mattn/go-sqlite3"
+	//_ "github.com/lib/pq"
+	_ "github.com/mattn/go-sqlite3"
 	"encoding/json"
 	"github.com/gorilla/mux"
 )
@@ -43,8 +43,8 @@ func checkErr(err error){
 }
 
 func NewDB() *sql.DB {
-	db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
-	//sql.Open("sqlite3", "./ripple.db")
+	//db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
+	db, err := sql.Open("sqlite3", "./ripple.db")
     checkErr(err)
     
     _, err = db.Exec("DROP TABLE IF EXISTS requests")
@@ -63,7 +63,8 @@ func insertLogs(db *sql.DB){
     logs, err := processFile("logs.txt")
     checkErr(err)
 
-    stmt, err := db.Prepare("INSERT INTO requests (request_id, timestamp, fwd) VALUES($1,$2,$3) ON CONFLICT DO NOTHING")
+	stmt, err := db.Prepare("INSERT OR IGNORE INTO requests (request_id, timestamp, fwd) VALUES(?, ?, ?)")
+    //stmt, err := db.Prepare("INSERT INTO requests (request_id, timestamp, fwd) VALUES($1,$2,$3) ON CONFLICT DO NOTHING")
 	checkErr(err)	
 
     defer stmt.Close()
