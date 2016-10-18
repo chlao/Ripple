@@ -126,8 +126,6 @@ $(document).ready(function(){
 
 		var i; 
 
-		console.log(data)
-
 		for (i = 0; i < numIPAddresses; i++){
 			$('.search__ipSuggestions').append('<li class="ipSuggestions__item">' + ripple.ipAddresses[i] + '</li>'); 
 		}
