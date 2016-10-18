@@ -63,7 +63,7 @@ func insertLogs(db *sql.DB){
     logs, err := processFile("logs.txt")
     checkErr(err)
 
-    stmt, err := db.Prepare("INSERT IGNORE INTO requests (request_id, timestamp, fwd) VALUES(?, ?, ?)")
+    stmt, err := db.Prepare("INSERT INTO requests (request_id, timestamp, fwd) VALUES(?, ?, ?) WHERE NOT EXISTS (SELECT * FROM requests WHERE request_id = ?)")
 	checkErr(err)	
 
     defer stmt.Close()
@@ -80,7 +80,7 @@ func insertLogs(db *sql.DB){
 
     	fwd = fwd[5:len(fwd)]
 
-    	_, err = stmt.Exec(request_id, timestamp, fwd)
+    	_, err = stmt.Exec(request_id, timestamp, fwd, request_id)
 		checkErr(err) 
     }
 }
