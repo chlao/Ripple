@@ -43,7 +43,7 @@ body{
     background-color: rgb(218, 223, 225); 
 }
 
-.search__ipSuggestions{
+[class^="search__ipSuggestions"]{
 	list-style-type: none; 
 	margin: 0 auto;
 	padding: 0;	
