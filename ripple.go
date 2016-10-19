@@ -98,14 +98,14 @@ type IPAddresses struct{
 }
 
 func GetIP(db *sql.DB) http.Handler{
-	_, err = db.Exec("DROP TABLE IF EXISTS requests")
+	_, err := db.Exec("DROP TABLE IF EXISTS requests")
     checkErr(err)
 
     _, err = db.Exec("CREATE TABLE IF NOT EXISTS requests(request_id text primary key, timestamp text, fwd text)")
     checkErr(err)
 
     insertLogs(db)
-	
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")	
 
