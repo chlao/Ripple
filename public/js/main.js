@@ -20,9 +20,10 @@ $(document).ready(function(){
 			var ipAddress = $(this).text();
 			$('.search__ipAddress').val(ipAddress);
 
-			var newIPSuggestions = $('<ul>').addClass('search__ipSuggestions--results'); 
+			$('search__ipSuggestions--original').hide();
 
-			newIPSuggestions.append('<li class="ipSuggestions__item">' + ipAddress + '</li>'); 
+			$('search__ipSuggestions--results').append('<li class="ipSuggestions__item">' + ipAddress + '</li>'); 
+			$('search__ipSuggestions--results').show();
 
 			getLogs(ipAddress); 
 		});
@@ -32,6 +33,7 @@ $(document).ready(function(){
 			$('.search__ipAddress').val(ipAddress);
 
 			$('search__ipSuggestions--results').empty().append('<li class="ipSuggestions__item">' + ipAddress + '</li>'); 
+			$('search__ipSuggestions--results').show();
 
 			getLogs(ipAddress); 
 		});
