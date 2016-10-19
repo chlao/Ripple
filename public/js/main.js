@@ -11,10 +11,10 @@ $(document).ready(function(){
 		var i; 
 
 		for (i = 0; i < numIPAddresses; i++){
-			$('.search__ipSuggestions').append('<li class="ipSuggestions__item">' + ripple.ipAddresses[i] + '</li>'); 
+			$('.search__ipSuggestions--original').append('<li class="ipSuggestions__item">' + ripple.ipAddresses[i] + '</li>'); 
 		}
 
-		addIPSuggestionsListener();
+		addIPSuggestionsListener($('.search__ipSuggestions--original'));
 
 		initSearch(); 
 	});
@@ -39,12 +39,12 @@ function debounce(func, wait, immediate) {
 	};
 };
 
-function addIPSuggestionsListener(){
-	$('.search__ipSuggestions').on('click', '.ipSuggestions__item', function(){
+function addIPSuggestionsListener(ipAddressesList){
+	ipAddressesList.on('click', '.ipSuggestions__item', function(){
 		var ipAddress = $(this).text();
 		$('.search__ipAddress').val(ipAddress);
 
-		$('.search__ipSuggestions').empty().append('<li class="ipSuggestions__item">' + ipAddress + '</li>'); 
+		ipAddressesList.empty().append('<li class="ipSuggestions__item">' + ipAddress + '</li>'); 
 
 		getLogs(ipAddress); 
 	});
@@ -65,7 +65,6 @@ function onSearch(inputValue){
 
 	var i; 
 
-	$('.search__ipSuggestions').show();
 	if (inputValue.length == 0 || $.trim(inputValue) == ''){
 		$('.search__ipSuggestions--results').remove();
 		$('.search__ipSuggestions--original').show();
@@ -78,7 +77,7 @@ function onSearch(inputValue){
 		}
 		*/
 		//$('.search__ipSuggestions').replaceWith(newIPSuggestions); 
-		addIPSuggestionsListener();
+		//addIPSuggestionsListener();
 	} else {
 		debounceFunc = debounce(loadSuggestions, 250);
 		debounceFunc(inputValue); 
@@ -100,7 +99,7 @@ function loadSuggestions(inputValue){
 
 	//$('.search__ipSuggestions').replaceWith(newIPSuggestions); 
 	$('.search__ipSuggestions--original').after(newIPSuggestions); 
-	addIPSuggestionsListener();
+	addIPSuggestionsListener($('.search__ipSuggestions--results'));
 }
 
 function search(inputValue, ipAddresses){
