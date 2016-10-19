@@ -47,6 +47,7 @@ func NewDB() *sql.DB {
 	//db, err := sql.Open("sqlite3", "./ripple.db")
     checkErr(err)
     
+    /*
     _, err = db.Exec("DROP TABLE IF EXISTS requests")
     checkErr(err)
 
@@ -55,6 +56,9 @@ func NewDB() *sql.DB {
 
     _, err = db.Exec("CREATE INDEX ON requests (fwd)")
 	checkErr(err)
+
+	insertLogs(db)
+	*/
 
     return db
 }
@@ -112,8 +116,6 @@ type IPAddresses struct{
 func GetIP(db *sql.DB) http.Handler{
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")	
-
-		insertLogs(db)
 
 		ip := make([]string, 0)
 		var ipAddress string
