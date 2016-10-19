@@ -24,6 +24,7 @@ func main(){
 	db := NewDB()
 
 	r := mux.NewRouter()
+
 	r.Handle("/ip", GetIP(db)).Methods(http.MethodGet)
 	r.Handle("/logs/{id}", ReadLogs(db)).Methods(http.MethodGet)
 
@@ -69,17 +70,20 @@ func insertLogs(db *sql.DB){
 
     defer stmt.Close()
 
-    re_timestamp := regexp.MustCompile("([0-9]{4})-([0-9]{2})-([0-9]{2})\\s([0-9]{2}):([0-9]{2}):([0-9]{2})\\.([0-9]{6})")
-    re_requestid := regexp.MustCompile("request_id=([a-z0-9]+)-([a-z0-9]+)-([a-z0-9]+)-([a-z0-9]+)-([a-z0-9]+)")
-    re_fwd := regexp.MustCompile("fwd=\"([0-9]+)\\.([0-9]+)\\.([0-9]+)\\.([0-9]+)")
+    //re_timestamp := regexp.MustCompile("([0-9]{4})-([0-9]{2})-([0-9]{2})\\s([0-9]{2}):([0-9]{2}):([0-9]{2})\\.([0-9]{6})")
+    //re_requestid := regexp.MustCompile("request_id=([a-z0-9]+)-([a-z0-9]+)-([a-z0-9]+)-([a-z0-9]+)-([a-z0-9]+)")
+    //re_fwd := regexp.MustCompile("fwd=\"([0-9]+)\\.([0-9]+)\\.([0-9]+)\\.([0-9]+)")
+
+    re_requestid := regexp.MustCompile("([a-z0-9]+)-([a-z0-9]+)-([a-z0-9]+)-([a-z0-9]+)-([a-z0-9]+)")
+    re_fwd := regexp.MustCompile("([0-9]+)\\.([0-9]+)\\.([0-9]+)\\.([0-9]+)")
 
     // Add the request logs to the db 
     for _, content := range logs{
-    	timestamp := re_timestamp.FindString(content) 
+    	timestamp := content[:26]//re_timestamp.FindString(content) 
     	request_id := re_requestid.FindString(content)[11:]
     	fwd := re_fwd.FindString(content)
 
-    	fwd = fwd[5:len(fwd)]
+    	//fwd = fwd[5:len(fwd)]
 
     	_, err = stmt.Exec(request_id, timestamp, fwd)
 		checkErr(err) 
