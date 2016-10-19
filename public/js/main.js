@@ -3,6 +3,23 @@ var ripple = {
 	ipAddresses: []
 }; 
 
+$(document).ready(function(){
+	$.get('/ip', function(data){
+		ripple.ipAddresses = data.Fwd; 
+		var numIPAddresses = ripple.ipAddresses.length; 
+
+		var i; 
+
+		for (i = 0; i < numIPAddresses; i++){
+			$('.search__ipSuggestions').append('<li class="ipSuggestions__item">' + ripple.ipAddresses[i] + '</li>'); 
+		}
+
+		addIPSuggestionsListener();
+
+		initSearch(); 
+	});
+});
+
 // Returns a function, that, as long as it continues to be invoked, will not
 // be triggered. The function will be called after it stops being called for
 // N milliseconds. If `immediate` is passed, trigger the function on the
@@ -22,20 +39,24 @@ function debounce(func, wait, immediate) {
 	};
 };
 
-function loadSuggestions(inputValue){
-	// Look for the value 
-	var results = search(inputValue, ripple.ipAddresses);
+function addIPSuggestionsListener(){
+	$('.search__ipSuggestions').on('click', '.ipSuggestions__item', function(){
+		var ipAddress = $(this).text();
+		$('.search__ipAddress').val(ipAddress);
 
-	var newIPSuggestions = $('<ul>').addClass('search__ipSuggestions'); 
+		$('.search__ipSuggestions').empty().append('<li class="ipSuggestions__item">' + ipAddress + '</li>'); 
 
-	var i; 
+		getLogs(ipAddress); 
+	});
+}
 
-	for (i = 0; i < results.length; i++){
-		newIPSuggestions.append('<li class="ipSuggestions__item">' + results[i] + '</li>'); 
-	}
+function initSearch(){
+	var ipSearchBox = $('.search__ipAddress');
+	ipSearchBox.focus(); 
 
-	$('.search__ipSuggestions').replaceWith(newIPSuggestions); 
-	addIPSuggestionsListener();
+	ipSearchBox.on('keyup', function(e){
+		onSearch($(this).val()); 
+	}); 
 }
 
 function onSearch(inputValue){
@@ -55,9 +76,24 @@ function onSearch(inputValue){
 		$('.search__ipSuggestions').replaceWith(newIPSuggestions); 
 		addIPSuggestionsListener();
 	} else {
-		debounceFunc = debounce(loadSuggestions, 400);
+		debounceFunc = debounce(loadSuggestions, 250);
 		debounceFunc(inputValue); 
 	}
+}
+
+function loadSuggestions(inputValue){
+	// Look for the value 
+	var results = search(inputValue, ripple.ipAddresses);
+
+	var newIPSuggestions = $('<ul>').addClass('search__ipSuggestions'); 
+	var i; 
+
+	for (i = 0; i < results.length; i++){
+		newIPSuggestions.append('<li class="ipSuggestions__item">' + results[i] + '</li>'); 
+	}
+
+	$('.search__ipSuggestions').replaceWith(newIPSuggestions); 
+	addIPSuggestionsListener();
 }
 
 function search(inputValue, ipAddresses){
@@ -117,43 +153,6 @@ function search(inputValue, ipAddresses){
 	}
 
 	return results;
-}
-
-$(document).ready(function(){
-	$.get('/ip', function(data){
-		ripple.ipAddresses = data.Fwd; 
-		var numIPAddresses = ripple.ipAddresses.length; 
-
-		var i; 
-
-		for (i = 0; i < numIPAddresses; i++){
-			$('.search__ipSuggestions').append('<li class="ipSuggestions__item">' + ripple.ipAddresses[i] + '</li>'); 
-		}
-
-		addIPSuggestionsListener();
-
-		initSearch(); 
-	});
-});
-
-function addIPSuggestionsListener(){
-	$('.search__ipSuggestions').on('click', '.ipSuggestions__item', function(){
-		var ipAddress = $(this).text();
-		$('.search__ipAddress').val(ipAddress);
-
-		$('.search__ipSuggestions').empty().append('<li class="ipSuggestions__item">' + ipAddress + '</li>'); 
-
-		getLogs(ipAddress); 
-	});
-}
-
-function initSearch(){
-	var ipSearchBox = $('.search__ipAddress');
-	ipSearchBox.focus(); 
-
-	ipSearchBox.on('keyup', function(e){
-		onSearch($(this).val()); 
-	}); 
 }
 
 function getLogs(ipAddress){

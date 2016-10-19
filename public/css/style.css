@@ -1,3 +1,4 @@
+/******************* General ********************/
 @font-face {
   font-family: 'Open Sans';
   src: url("fonts/Open_Sans/OpenSans-Regular.ttf") format("truetype");
@@ -8,20 +9,18 @@ body{
 	font-family: 'Open Sans', sans-serif;
 }
 
+/******************* Layout ********************/
 [class^="content__"]{
 	display: inline-block;
 	padding: 25px;
 	vertical-align: top;
 }
 
+/******************* Sidebar ********************/
 .content__sidebar{
 	width: 25%; 
 	background-color: #EAE2D6;
 	min-height: 93vh;
-}
-
-.content__chart{
-	margin-left: 7.5%;
 }
 
 .search__ipAddress{
@@ -63,6 +62,7 @@ body{
 	background-color: #D5C3AA;
 }
 
-.selected{
-	background-color: #D5C3AA;
+/******************* Chart ********************/
+.content__chart{
+	margin-left: 7.5%;
 }
