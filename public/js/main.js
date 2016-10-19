@@ -44,7 +44,13 @@ function addIPSuggestionsListener(ipAddressesList){
 		var ipAddress = $(this).text();
 		$('.search__ipAddress').val(ipAddress);
 
-		ipAddressesList.empty().append('<li class="ipSuggestions__item">' + ipAddress + '</li>'); 
+		var currList; 
+
+		if (ipAddressesList.hasClass('search__ipSuggestions--original')){
+			currList = $('<ul>').addClass('search__ipSuggestions--results'); 
+		} 
+
+		curList.empty().append('<li class="ipSuggestions__item">' + ipAddress + '</li>'); 
 
 		getLogs(ipAddress); 
 	});
@@ -88,7 +94,7 @@ function loadSuggestions(inputValue){
 	// Look for the value 
 	var results = search(inputValue, ripple.ipAddresses);
 
-	var newIPSuggestions = $('<ul>').addClass('.search__ipSuggestions--results'); 
+	var newIPSuggestions = $('<ul>').addClass('search__ipSuggestions--results'); 
 	var i; 
 
 	for (i = 0; i < results.length; i++){
@@ -98,7 +104,7 @@ function loadSuggestions(inputValue){
 	//$('.search__ipSuggestions').replaceWith(newIPSuggestions); 
 	$('.search__ipSuggestions--original').after(newIPSuggestions); 
 	$('.search__ipSuggestions--original').hide();
-	
+
 	addIPSuggestionsListener($('.search__ipSuggestions--results'));
 }
 
