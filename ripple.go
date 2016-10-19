@@ -44,6 +44,9 @@ func checkErr(err error){
 
 func NewDB() *sql.DB {
 	db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
+	if err != nil {
+        log.Fatalf("Error opening database: %q", err)
+    }
 	//db, err := sql.Open("sqlite3", "./ripple.db")
     checkErr(err)
 
