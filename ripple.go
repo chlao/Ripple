@@ -149,9 +149,7 @@ func ReadLogs(db *sql.DB) http.Handler{
 		split := strings.Split(r.URL.String(), "/")
 		ip := split[len(split) - 1]
 
-		log.Println(ip)
-
-		rows, err := db.Query("SELECT timestamp FROM requests WHERE fwd=\"" + ip + "\"")
+		rows, err := db.Query("SELECT timestamp FROM requests WHERE fwd='" + ip + "'")
 		checkErr(err)
 
 		timestamps := make([]string, 0)
