@@ -119,6 +119,8 @@ function loadSuggestions(inputValue){
 	//var newIPSuggestions = $('<ul>').addClass('search__ipSuggestions--results'); 
 	var i; 
 
+	$('.search__ipSuggestions--results').empty();
+
 	for (i = 0; i < results.length; i++){
 		$('.search__ipSuggestions--results').append('<li class="ipSuggestions__item">' + results[i] + '</li>'); 
 	}
