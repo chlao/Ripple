@@ -61,23 +61,6 @@ function debounce(func, wait, immediate) {
 	};
 };
 
-function addIPSuggestionsListener(ipAddressesList){
-	ipAddressesList.on('click', '.ipSuggestions__item', function(){
-		var ipAddress = $(this).text();
-		$('.search__ipAddress').val(ipAddress);
-
-		var currList; 
-
-		if (ipAddressesList.hasClass('search__ipSuggestions--original')){
-			currList = $('<ul>').addClass('search__ipSuggestions--results'); 
-		} 
-
-		curList.empty().append('<li class="ipSuggestions__item">' + ipAddress + '</li>'); 
-
-		getLogs(ipAddress); 
-	});
-}
-
 function initSearch(){
 	var ipSearchBox = $('.search__ipAddress');
 	ipSearchBox.focus(); 
@@ -96,16 +79,6 @@ function onSearch(inputValue){
 	if (inputValue.length == 0 || $.trim(inputValue) == ''){
 		$('.search__ipSuggestions--results').empty().hide();
 		$('.search__ipSuggestions--original').show();
-
-		/*
-		newIPSuggestions = $('<ul>').addClass('search__ipSuggestions'); 
-
-		for (i = 0; i < ripple.ipAddresses.length; i++){
-			newIPSuggestions.append('<li class="ipSuggestions__item">' + ripple.ipAddresses[i] + '</li>'); 
-		}
-		*/
-		//$('.search__ipSuggestions').replaceWith(newIPSuggestions); 
-		//addIPSuggestionsListener();
 	} else {
 		debounceFunc = debounce(loadSuggestions, 250);
 		debounceFunc(inputValue); 
@@ -115,8 +88,6 @@ function onSearch(inputValue){
 function loadSuggestions(inputValue){
 	// Look for the value 
 	var results = search(inputValue, ripple.ipAddresses);
-
-	//var newIPSuggestions = $('<ul>').addClass('search__ipSuggestions--results'); 
 	var i; 
 
 	$('.search__ipSuggestions--results').empty();
@@ -125,14 +96,8 @@ function loadSuggestions(inputValue){
 		$('.search__ipSuggestions--results').append('<li class="ipSuggestions__item">' + results[i] + '</li>'); 
 	}
 
-	//$('.search__ipSuggestions').replaceWith(newIPSuggestions); 
-	//$('.search__ipSuggestions--original').after(newIPSuggestions); 
 	$('.search__ipSuggestions--original').hide();
 	$('.search__ipSuggestions--results').show();
-
-	//addIPSuggestionsListener($('.search__ipSuggestions--results'));
-
-	
 }
 
 function search(inputValue, ipAddresses){
