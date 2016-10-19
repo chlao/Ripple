@@ -24,7 +24,6 @@ func main(){
 	db := NewDB()
 
 	r := mux.NewRouter()
-
 	r.Handle("/ip", GetIP(db)).Methods(http.MethodGet)
 	r.Handle("/logs/{id}", ReadLogs(db)).Methods(http.MethodGet)
 
@@ -47,15 +46,14 @@ func NewDB() *sql.DB {
 	//db, err := sql.Open("sqlite3", "./ripple.db")
     checkErr(err)
     
-    /*
     _, err = db.Exec("DROP TABLE IF EXISTS requests")
     checkErr(err)
 
     _, err = db.Exec("CREATE TABLE IF NOT EXISTS requests(request_id text primary key, timestamp text, fwd text)")
     checkErr(err)
 
-    insertLogs(db)
-    */
+    _, err = db.Exec("CREATE INDEX ON requests (fwd)")
+	checkErr(err)
 
     return db
 }
@@ -110,6 +108,8 @@ type IPAddresses struct{
 func GetIP(db *sql.DB) http.Handler{
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")	
+
+		insertLogs(db)
 
 		ip := make([]string, 0)
 		var ipAddress string
