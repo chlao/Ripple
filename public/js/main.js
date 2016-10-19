@@ -88,8 +88,6 @@ function loadSuggestions(inputValue){
 	// Look for the value 
 	var results = search(inputValue, ripple.ipAddresses);
 
-	$('.search__ipSuggestions--original').hide();
-
 	var newIPSuggestions = $('<ul>').addClass('.search__ipSuggestions--results'); 
 	var i; 
 
@@ -99,6 +97,8 @@ function loadSuggestions(inputValue){
 
 	//$('.search__ipSuggestions').replaceWith(newIPSuggestions); 
 	$('.search__ipSuggestions--original').after(newIPSuggestions); 
+	$('.search__ipSuggestions--original').hide();
+	
 	addIPSuggestionsListener($('.search__ipSuggestions--results'));
 }
 
