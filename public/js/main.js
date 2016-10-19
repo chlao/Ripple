@@ -20,10 +20,10 @@ $(document).ready(function(){
 			var ipAddress = $(this).text();
 			$('.search__ipAddress').val(ipAddress);
 
-			$('search__ipSuggestions--original').hide();
+			$('.search__ipSuggestions--original').hide();
 
-			$('search__ipSuggestions--results').append('<li class="ipSuggestions__item">' + ipAddress + '</li>'); 
-			$('search__ipSuggestions--results').show();
+			$('.search__ipSuggestions--results').append('<li class="ipSuggestions__item">' + ipAddress + '</li>'); 
+			$('.search__ipSuggestions--results').show();
 
 			getLogs(ipAddress); 
 		});
@@ -32,8 +32,8 @@ $(document).ready(function(){
 			var ipAddress = $(this).text();
 			$('.search__ipAddress').val(ipAddress);
 
-			$('search__ipSuggestions--results').empty().append('<li class="ipSuggestions__item">' + ipAddress + '</li>'); 
-			$('search__ipSuggestions--results').show();
+			$('.search__ipSuggestions--results').empty().append('<li class="ipSuggestions__item">' + ipAddress + '</li>'); 
+			$('.search__ipSuggestions--results').show();
 
 			getLogs(ipAddress); 
 		});
@@ -120,7 +120,7 @@ function loadSuggestions(inputValue){
 	var i; 
 
 	for (i = 0; i < results.length; i++){
-		$('search__ipSuggestions--results').append('<li class="ipSuggestions__item">' + results[i] + '</li>'); 
+		$('.search__ipSuggestions--results').append('<li class="ipSuggestions__item">' + results[i] + '</li>'); 
 	}
 
 	//$('.search__ipSuggestions').replaceWith(newIPSuggestions); 
