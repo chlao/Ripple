@@ -27,6 +27,15 @@ $(document).ready(function(){
 			getLogs(ipAddress); 
 		});
 
+		$('.search__ipSuggestions--results').on('click', '.ipSuggestions__item', function(){
+			var ipAddress = $(this).text();
+			$('.search__ipAddress').val(ipAddress);
+
+			$('search__ipSuggestions--results').empty().append('<li class="ipSuggestions__item">' + ipAddress + '</li>'); 
+
+			getLogs(ipAddress); 
+		});
+
 		initSearch(); 
 	});
 });
@@ -83,7 +92,7 @@ function onSearch(inputValue){
 	var i; 
 
 	if (inputValue.length == 0 || $.trim(inputValue) == ''){
-		$('.search__ipSuggestions--results').remove();
+		$('.search__ipSuggestions--results').empty().hide();
 		$('.search__ipSuggestions--original').show();
 
 		/*
@@ -105,27 +114,21 @@ function loadSuggestions(inputValue){
 	// Look for the value 
 	var results = search(inputValue, ripple.ipAddresses);
 
-	var newIPSuggestions = $('<ul>').addClass('search__ipSuggestions--results'); 
+	//var newIPSuggestions = $('<ul>').addClass('search__ipSuggestions--results'); 
 	var i; 
 
 	for (i = 0; i < results.length; i++){
-		newIPSuggestions.append('<li class="ipSuggestions__item">' + results[i] + '</li>'); 
+		$('search__ipSuggestions--results').append('<li class="ipSuggestions__item">' + results[i] + '</li>'); 
 	}
 
 	//$('.search__ipSuggestions').replaceWith(newIPSuggestions); 
-	$('.search__ipSuggestions--original').after(newIPSuggestions); 
+	//$('.search__ipSuggestions--original').after(newIPSuggestions); 
 	$('.search__ipSuggestions--original').hide();
+	$('.search__ipSuggestions--results').show();
 
 	//addIPSuggestionsListener($('.search__ipSuggestions--results'));
 
-	$('search__ipSuggestions--results').on('click', '.ipSuggestions__item', function(){
-		var ipAddress = $(this).text();
-		$('.search__ipAddress').val(ipAddress);
-
-		$('search__ipSuggestions--results').empty().append('<li class="ipSuggestions__item">' + ipAddress + '</li>'); 
-
-		getLogs(ipAddress); 
-	});
+	
 }
 
 function search(inputValue, ipAddresses){
