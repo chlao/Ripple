@@ -44,9 +44,6 @@ func checkErr(err error){
 
 func NewDB() *sql.DB {
 	db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
-	if err != nil {
-        log.Fatalf("Error opening database: %q", err)
-    }
 	//db, err := sql.Open("sqlite3", "./ripple.db")
     checkErr(err)
 
@@ -101,15 +98,15 @@ type IPAddresses struct{
 }
 
 func GetIP(db *sql.DB) http.Handler{
-	_, err := db.Exec("DROP TABLE IF EXISTS requests")
-    checkErr(err)
-
-    _, err = db.Exec("CREATE TABLE IF NOT EXISTS requests(request_id text primary key, timestamp text, fwd text)")
-    checkErr(err)
-
-    insertLogs(db)
-
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, err := db.Exec("DROP TABLE IF EXISTS requests")
+	    checkErr(err)
+
+	    _, err = db.Exec("CREATE TABLE IF NOT EXISTS requests(request_id text primary key, timestamp text, fwd text)")
+	    checkErr(err)
+
+	    insertLogs(db)
+
 		w.Header().Set("Content-Type", "application/json")	
 
 		ip := make([]string, 0)
